@@ -1,0 +1,65 @@
+<!-- recognizer/templates/recognizer/add_person.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Authorized Person - Face ID System</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding-top: 1rem; background-color: #f8f9fa; }
+        .container { max-width: 600px; background-color: white; padding: 2rem; border-radius: .5rem; box-shadow: 0 .125rem .25rem rgba(0,0,0,.075); }
+        .form-label { font-weight: 500; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="h3 mb-4">Add New Authorized Person</h1>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert 
+                    {% if message.tags == 'success' %}alert-success{% endif %}
+                    {% if message.tags == 'error' %}alert-danger{% endif %}
+                    {% if message.tags == 'warning' %}alert-warning{% endif %}
+                    {% if message.tags == 'info' %}alert-info{% endif %}
+                    alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
+                {{ form.name }} <!-- Django renders widget with its classes from forms.py -->
+                {% if form.name.help_text %}
+                    <div class="form-text">{{ form.name.help_text }}</div>
+                {% endif %}
+                {% for error in form.name.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.face_image.id_for_label }}" class="form-label">{{ form.face_image.label }}</label>
+                {{ form.face_image }} <!-- Django renders widget with its classes from forms.py -->
+                {% if form.face_image.help_text %}
+                    <div class="form-text">{{ form.face_image.help_text }}</div>
+                {% endif %}
+                {% for error in form.face_image.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save Person</button>
+            <a href="{% url 'recognizer:dashboard' %}#manage-identities" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS Bundle (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

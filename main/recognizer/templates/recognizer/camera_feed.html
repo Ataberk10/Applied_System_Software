@@ -1,0 +1,140 @@
+<!-- recognizer/templates/recognizer/camera_feed.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Camera Feed - Face ID System</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 2rem;
+            background-color: #f8f9fa; /* Light gray background */
+        }
+        #videoElement {
+            width: 100%;
+            max-width: 640px; /* Limit video width */
+            height: auto;
+            border: 1px solid #dee2e6; /* Bootstrap subtle border */
+            border-radius: .25rem; /* Rounded corners */
+            background-color: #333;
+            box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+        }
+        .camera-container {
+            max-width: 700px;
+            width: 100%;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        #message { margin-top: 15px; font-weight: bold; min-height: 24px; }
+    </style>
+</head>
+<body class="text-center">
+
+    <div class="camera-container">
+        <h1 class="h3 mb-3 fw-normal">Live Camera Feed</h1>
+        <p class="mb-3">Position your face clearly in the camera view.</p>
+
+        <video autoplay="true" id="videoElement"></video>
+        
+        <button id="openDoorButton" class="btn btn-primary btn-lg mt-3">
+            Open The Door
+        </button>
+
+        <div id="message" class="mt-3"></div>
+    </div>
+
+    <!-- Hidden canvas element for capturing frames -->
+    <canvas id="canvasElement" style="display:none;"></canvas>
+
+    <!-- Bootstrap JS Bundle (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const video = document.getElementById('videoElement');
+        const canvas = document.getElementById('canvasElement');
+        const openDoorButton = document.getElementById('openDoorButton');
+        const messageDiv = document.getElementById('message');
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+        if (navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function (stream) {
+                    video.srcObject = stream;
+                })
+                .catch(function (error) {
+                    console.log("Something went wrong accessing the camera!", error);
+                    messageDiv.textContent = "Could not access the camera. Permissions needed.";
+                    messageDiv.classList.add('text-danger');
+                });
+        } else {
+            messageDiv.textContent = "getUserMedia not supported by this browser.";
+            messageDiv.classList.add('text-danger');
+        }
+
+        openDoorButton.addEventListener('click', function() {
+            messageDiv.textContent = "Processing...";
+            messageDiv.classList.remove('text-danger', 'text-success');
+            messageDiv.classList.add('text-primary');
+            openDoorButton.disabled = true; // Disable button during processing
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageDataURL = canvas.toDataURL('image/jpeg');
+
+            fetch("{% url 'recognizer:process_frame' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrftoken
+                },
+                body: 'image_data=' + encodeURIComponent(imageDataURL)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                messageDiv.textContent = data.message || "Frame processed.";
+                if (data.status === 'success') {
+                    messageDiv.classList.remove('text-primary', 'text-danger');
+                    messageDiv.classList.add('text-success');
+                    if (data.redirect_url) {
+                        window.location.href = data.redirect_url;
+                    }
+                } else {
+                    messageDiv.classList.remove('text-primary', 'text-success');
+                    messageDiv.classList.add('text-danger');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                messageDiv.textContent = "Error processing frame. See console.";
+                messageDiv.classList.remove('text-primary', 'text-success');
+                messageDiv.classList.add('text-danger');
+            })
+            .finally(() => {
+                openDoorButton.disabled = false; // Re-enable button
+            });
+        });
+    </script>
+</body>
+</html>
