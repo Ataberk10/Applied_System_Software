@@ -1,4 +1,5 @@
-# The Face Recognition-Based Access Control System 
+
+# Project description of The Face Recognition-Based Access Control System 
 
 This is a Django-powered The Face Recognition-Based Access Control System  application that demonstrates a basic face recognition authentication system. Users can "log in" by presenting their face to the camera. The system also includes features for managing authorized identities and viewing login attempt history. It utilizes the InsightFace library for face detection and recognition.
 
@@ -34,7 +35,7 @@ This is a Django-powered The Face Recognition-Based Access Control System  appli
 *   A webcam connected to your computer
 *   A modern web browser that supports `getUserMedia` API (e.g., Chrome, Firefox, Edge)
 
-## Setup and Installation
+## Setup and run instructions
 
 1.  **Clone the Repository (or create project manually):**
     If you have this project in a Git repository:
@@ -228,3 +229,16 @@ djangofaceid/
 *   **Asynchronous Processing:** Offload face recognition to background tasks (e.g., Celery) for better performance under load.
 *   **Alternative Face Recognition Models:** Experiment with other models or libraries.
 *   **Database Optimization:** For a large number of users, consider vector databases (e.g., FAISS, Milvus) for faster similarity searches.
+
+
+## 👥 Team Roles – DIP392-TeamRed
+
+| Name               | Student ID  | Role                   | Responsibilities                                                  |
+|---------------------------------------------------------------------------------------------------------------------------------|
+| **Eymen Ucdal**     | 231ADB006  | Backend Developer      | Developed core face recognition logic using InsightFace and OpenCV.             |
+| **Tufan Yilmaz**    | 231ADB089  | Frontend Developer     | Designed UI with HTML/CSS/Bootstrap, handled camera interface integration.      |
+| **Ata Mert Pekcan** | 231ADB010  | Database & Logging     | Managed SQLite database and implemented login attempt logging.                  |
+| **Ali Can Eygay**   | 231ADB027  | Testing & Debugging    | Created test scripts and validated recognition functionality.                   |
+| **Renas Alp**       | 211ADB112  | Deployment & Integration | Set up Django configuration, model loading, and static/media file management.  |
+| **Ataberk Akcin**   | 211AIB121  | Team Lead & Documentation | Led the team, managed GitHub and prepared project documentation.               |
+| **Babak Gasimzade** | 221ADB125  | Admin Features & Forms | Implemented admin-side forms for managing authorized persons.                   |
